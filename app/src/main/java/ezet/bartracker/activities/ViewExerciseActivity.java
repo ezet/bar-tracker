@@ -9,6 +9,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,8 +20,9 @@ import ezet.bartracker.R;
 import ezet.bartracker.activities.fragments.ExerciseHistoryFragment;
 import ezet.bartracker.activities.fragments.ExerciseStatsFragment;
 import ezet.bartracker.activities.fragments.TrackExerciseFragment;
-import ezet.bartracker.activities.fragments.dummy.DummyExercise;
-import ezet.bartracker.activities.fragments.dummy.DummySet;
+import ezet.bartracker.activities.fragments.dummy.ExerciseProvider;
+import ezet.bartracker.models.Exercise;
+import ezet.bartracker.models.ExerciseSet;
 
 @SuppressWarnings("Duplicates")
 public class ViewExerciseActivity extends AppCompatActivity implements ExerciseHistoryFragment.OnListFragmentInteractionListener, TrackExerciseFragment.OnFragmentInteractionListener, ExerciseStatsFragment.OnFragmentInteractionListener {
@@ -28,7 +30,7 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
 
     public static final String ARG_EXERCISE_ID = "exercise_id";
     private int exerciseId;
-    private DummyExercise.Exercise exercise;
+    private Exercise exercise;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -51,12 +53,14 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
             savedInstanceState = getIntent().getExtras();
         exerciseId = savedInstanceState.getInt(ARG_EXERCISE_ID);
 
-        exercise = DummyExercise.ITEM_MAP.get(exerciseId);
+        exercise = ExerciseProvider.ITEM_MAP.get(exerciseId);
         setContentView(R.layout.activity_view_exercise);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(exercise.name);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -93,28 +97,21 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_settings: return settingsAction();
-            case R.id.action_debug: return debugAction();
+            case R.id.action_settings:
+                this.startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_debug:
+                this.startActivity(new Intent(this, DebugActivity.class));
+                return true;
+            case R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean settingsAction() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        this.startActivity(intent);
-        return true;
-    }
-
-    private boolean debugAction() {
-        Intent intent = new Intent(this, DebugActivity.class);
-        this.startActivity(intent);
-        return true;
-    }
-
     @Override
-    public void onListFragmentInteraction(DummySet.ExerciseSet item) {
+    public void onListFragmentInteraction(ExerciseSet item) {
         Intent intent = new Intent(this, ViewSetActivity.class);
         Bundle bundle = new Bundle();
         bundle.putInt(ViewSetActivity.ARG_SET_ID, item.id);
@@ -140,11 +137,15 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
 
         @Override
         public Fragment getItem(int position) {
-            switch (position){
-                case 0: return TrackExerciseFragment.newInstance();
-                case 1: return ExerciseHistoryFragment.newInstance();
-                case 2: return ExerciseStatsFragment.newInstance();
-                default: return null;
+            switch (position) {
+                case 0:
+                    return TrackExerciseFragment.newInstance();
+                case 1:
+                    return ExerciseHistoryFragment.newInstance();
+                case 2:
+                    return ExerciseStatsFragment.newInstance();
+                default:
+                    return null;
             }
         }
 

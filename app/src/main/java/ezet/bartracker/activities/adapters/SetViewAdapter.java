@@ -1,4 +1,4 @@
-package ezet.bartracker.activities.fragments;
+package ezet.bartracker.activities.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import ezet.bartracker.R;
 import ezet.bartracker.activities.fragments.ExerciseHistoryFragment.OnListFragmentInteractionListener;
-import ezet.bartracker.activities.fragments.dummy.DummySet.ExerciseSet;
+import ezet.bartracker.models.ExerciseSet;
 
 import java.util.List;
 

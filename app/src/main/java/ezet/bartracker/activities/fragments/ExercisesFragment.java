@@ -10,8 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import ezet.bartracker.R;
-import ezet.bartracker.activities.fragments.dummy.DummyExercise;
-import ezet.bartracker.activities.fragments.dummy.DummyExercise.Exercise;
+import ezet.bartracker.activities.adapters.ExerciseViewAdapter;
+import ezet.bartracker.activities.fragments.dummy.ExerciseProvider;
+import ezet.bartracker.models.Exercise;
 
 /**
  * A fragment representing a list of Items.
@@ -67,7 +68,7 @@ public class ExercisesFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new ExerciseViewAdapter(DummyExercise.ITEMS, mListener));
+            recyclerView.setAdapter(new ExerciseViewAdapter(ExerciseProvider.ITEMS, mListener));
         }
         return view;
     }

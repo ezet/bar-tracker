@@ -1,4 +1,4 @@
-package ezet.bartracker.activities.fragments;
+package ezet.bartracker.activities.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import ezet.bartracker.R;
 import ezet.bartracker.activities.fragments.ExercisesFragment.OnListFragmentInteractionListener;
-import ezet.bartracker.activities.fragments.dummy.DummyExercise.Exercise;
+import ezet.bartracker.models.Exercise;
 
 import java.util.List;
 
@@ -44,8 +44,6 @@ public class ExerciseViewAdapter extends RecyclerView.Adapter<ExerciseViewAdapte
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.item);
                 }
             }

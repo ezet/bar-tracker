@@ -1,5 +1,7 @@
 package ezet.bartracker.activities.fragments.dummy;
 
+import ezet.bartracker.models.Exercise;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.Map;
  * <p>
  * TODO: Replace all uses of this class before publishing your app.
  */
-public class DummyExercise {
+public class ExerciseProvider {
 
     /**
      * An array of sample (dummy) items.
@@ -50,23 +52,4 @@ public class DummyExercise {
         return builder.toString();
     }
 
-    /**
-     * A dummy item representing a piece of name.
-     */
-    public static class Exercise {
-        public final int id;
-        public final String name;
-        public final String details;
-
-        public Exercise(int id, String name, String details) {
-            this.id = id;
-            this.name = name;
-            this.details = details;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
 }

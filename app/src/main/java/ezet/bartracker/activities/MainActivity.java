@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import ezet.bartracker.R;
 import ezet.bartracker.activities.fragments.ExercisesFragment;
-import ezet.bartracker.activities.fragments.dummy.DummyExercise;
+import ezet.bartracker.models.Exercise;
 
 public class MainActivity extends AppCompatActivity implements ExercisesFragment.OnListFragmentInteractionListener {
 
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements ExercisesFragment
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -66,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements ExercisesFragment
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -80,17 +80,27 @@ public class MainActivity extends AppCompatActivity implements ExercisesFragment
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings: return settingsAction();
+            case R.id.action_debug: return debugAction();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
+    private boolean settingsAction() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        this.startActivity(intent);
+        return true;
+    }
+
+    private boolean debugAction() {
+        Intent intent = new Intent(this, DebugActivity.class);
+        this.startActivity(intent);
+        return true;
+    }
+
     @Override
-    public void onListFragmentInteraction(DummyExercise.Exercise item) {
+    public void onListFragmentInteraction(Exercise item) {
         Intent intent = new Intent(this, ViewExerciseActivity.class);
         Bundle bundle = new Bundle();
         bundle.putInt(ViewExerciseActivity.ARG_EXERCISE_ID, item.id);

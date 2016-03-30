@@ -15,7 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import ezet.bartracker.R;
 import ezet.bartracker.activities.fragments.AnalyzerFragment;
-import ezet.bartracker.activities.fragments.dummy.DummySet;
+import ezet.bartracker.activities.fragments.dummy.ExerciseSetProvider;
+import ezet.bartracker.models.ExerciseSet;
 import ezet.bartracker.models.SensorFragment;
 
 @SuppressWarnings("Duplicates")
@@ -33,7 +34,7 @@ public class ViewSetActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private int setId;
-    private DummySet.ExerciseSet set;
+    private ExerciseSet set;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -47,13 +48,15 @@ public class ViewSetActivity extends AppCompatActivity {
             savedInstanceState = getIntent().getExtras();
         setId = savedInstanceState.getInt(ARG_SET_ID);
 
-        set = DummySet.ITEM_MAP.get(setId);
+        set = ExerciseSetProvider.ITEM_MAP.get(setId);
 
         setContentView(R.layout.activity_debug);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(set.name);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());

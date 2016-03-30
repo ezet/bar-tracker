@@ -9,5 +9,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment" />
+    <NumberPicker
+        android:id="@+id/weight_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        >
+        <ToggleButton
+            android:id="@+id/track_toggle_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/button_start"
+            android:textOn="@string/button_stop"
+            />
+
+    </NumberPicker>
 
 </FrameLayout>
