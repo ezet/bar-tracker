@@ -5,7 +5,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import ezet.bartracker.models.BarEvent;
-import ezet.bartracker.models.BarStats;
+import ezet.bartracker.models.SetAnalyzer;
 import ezet.bartracker.models.SensorData;
 
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ public class MpAndroidChartAdapter {
 
     private void analyzeData(List<SensorData> data) {
 
-        BarStats stats = new BarStats();
-        stats.analyze(data);
+        SetAnalyzer stats = new SetAnalyzer(data);
+        stats.analyze();
 
         List<Entry> rawAccelerationValues = new ArrayList<>();
         List<Entry> velocityValues = new ArrayList<>();
@@ -88,7 +88,7 @@ public class MpAndroidChartAdapter {
 //        powerChart.setData(new LineData(xValues, power));
 //        powerChart.notifyDataSetChanged();
 //        powerChart.invalidate();
-
+//
 //        avgVelocity.setText(getString(R.string.average_velocity, stats.avgVelocity));
 //        maxVelocity.setText(getString(R.string.max_velocity, stats.maxVelocity));
 //        minVelocity.setText(getString(R.string.min_velocity, stats.minVelocity));

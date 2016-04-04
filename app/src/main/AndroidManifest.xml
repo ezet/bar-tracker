@@ -23,7 +23,7 @@
 
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activities.main.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -34,53 +34,53 @@
 
 
         <activity
-            android:name=".activities.ViewExerciseActivity"
+            android:name=".activities.view_exercise.ViewExerciseActivity"
             android:label="@string/title_activity_debug"
             android:theme="@style/AppTheme"
             android:launchMode="singleTop"
-            android:parentActivityName=".activities.MainActivity">
+            android:parentActivityName=".activities.main.MainActivity">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
+                android:value=".activities.main.MainActivity" />
         </activity>
 
 
         <activity
-            android:name=".activities.ViewSetActivity"
+            android:name=".activities.view_set.ViewSetActivity"
             android:theme="@style/AppTheme"
             android:launchMode="singleTop"
-            android:parentActivityName=".activities.ViewExerciseActivity">
+            android:parentActivityName=".activities.view_exercise.ViewExerciseActivity">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.ViewExerciseActivity" />
+                android:value=".activities.view_exercise.ViewExerciseActivity" />
         </activity>
 
 
         <activity
-            android:name=".activities.ViewRepActivity"
+            android:name=".activities.view_rep.ViewRepActivity"
             android:label="@string/title_activity_rep_analyzer"
             android:theme="@style/AppTheme"
             android:launchMode="singleTop"
-            android:parentActivityName=".activities.ViewSetActivity">
+            android:parentActivityName=".activities.view_set.ViewSetActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.ViewSetActivity" />
+                android:value=".activities.view_set.ViewSetActivity" />
         </activity>
 
 
         <activity
             android:name=".activities.DebugActivity"
             android:theme="@style/AppTheme"
-            android:parentActivityName=".activities.MainActivity">
+            android:parentActivityName=".activities.main.MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
+                android:value=".activities.main.MainActivity" />
         </activity>
 
         <!--<activity-->

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".activities.ViewRepActivity">
+    tools:context=".activities.view_rep.ViewRepActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"

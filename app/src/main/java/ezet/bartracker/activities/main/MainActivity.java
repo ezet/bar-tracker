@@ -1,36 +1,31 @@
-package ezet.bartracker.activities;
+package ezet.bartracker.activities.main;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+
+import android.widget.TextView;
 import ezet.bartracker.R;
-import ezet.bartracker.activities.fragments.ExerciseHistoryFragment;
-import ezet.bartracker.activities.fragments.ExerciseStatsFragment;
-import ezet.bartracker.activities.fragments.TrackExerciseFragment;
-import ezet.bartracker.activities.fragments.dummy.ExerciseProvider;
+import ezet.bartracker.activities.DebugActivity;
+import ezet.bartracker.activities.SettingsActivity;
+import ezet.bartracker.activities.view_exercise.ViewExerciseActivity;
 import ezet.bartracker.models.Exercise;
-import ezet.bartracker.models.ExerciseSet;
 
-@SuppressWarnings("Duplicates")
-public class ViewExerciseActivity extends AppCompatActivity implements ExerciseHistoryFragment.OnListFragmentInteractionListener, TrackExerciseFragment.OnFragmentInteractionListener, ExerciseStatsFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ExercisesFragment.OnListFragmentInteractionListener {
 
-
-    public static final String ARG_EXERCISE_ID = "exercise_id";
-    private int exerciseId;
-    private Exercise exercise;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -49,18 +44,11 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState == null)
-            savedInstanceState = getIntent().getExtras();
-        exerciseId = savedInstanceState.getInt(ARG_EXERCISE_ID);
-
-        exercise = ExerciseProvider.ITEM_MAP.get(exerciseId);
-        setContentView(R.layout.activity_view_exercise);
+        setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(exercise.name);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -69,8 +57,6 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +66,7 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
                         .setAction("Action", null).show();
             }
         });
+
     }
 
     @Override
@@ -95,34 +82,67 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         switch (id) {
-            case R.id.action_settings:
-                this.startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            case R.id.action_debug:
-                this.startActivity(new Intent(this, DebugActivity.class));
-                return true;
-            case R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+            case R.id.action_settings: return settingsAction();
+            case R.id.action_debug: return debugAction();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onListFragmentInteraction(ExerciseSet item) {
-        Intent intent = new Intent(this, ViewSetActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putInt(ViewSetActivity.ARG_SET_ID, item.id);
-        intent.putExtras(bundle);
-        startActivity(intent);
+    private boolean settingsAction() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        this.startActivity(intent);
+        return true;
+    }
 
+    private boolean debugAction() {
+        Intent intent = new Intent(this, DebugActivity.class);
+        this.startActivity(intent);
+        return true;
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onListFragmentInteraction(Exercise item) {
+        Intent intent = new Intent(this, ViewExerciseActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt(ViewExerciseActivity.ARG_EXERCISE_ID, item.id);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
 
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            return rootView;
+        }
     }
 
     /**
@@ -137,20 +157,17 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
 
         @Override
         public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
-                case 0:
-                    return TrackExerciseFragment.newInstance();
-                case 1:
-                    return ExerciseHistoryFragment.newInstance();
-                case 2:
-                    return ExerciseStatsFragment.newInstance();
-                default:
-                    return null;
+                case 0: return ExercisesFragment.newInstance(1);
             }
+            return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override
         public int getCount() {
+            // Show 3 total pages.
             return 3;
         }
 
@@ -158,11 +175,11 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getString(R.string.title_fragment_track);
+                    return "Exercises";
                 case 1:
-                    return getString(R.string.title_fragment_history);
+                    return "SECTION 2";
                 case 2:
-                    return getString(R.string.title_fragment_stats);
+                    return "SECTION 3";
             }
             return null;
         }

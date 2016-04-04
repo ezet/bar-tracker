@@ -1,4 +1,4 @@
-package ezet.bartracker.activities.fragments;
+package ezet.bartracker.activities.view_exercise;
 
 import android.content.Context;
 import android.net.Uri;
@@ -80,7 +80,7 @@ public class ExerciseStatsFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement BarStatsHost");
         }
     }
 

@@ -1,6 +1,7 @@
-package ezet.bartracker.activities.fragments;
+package ezet.bartracker.activities.view_exercise;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,14 +10,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 import ezet.bartracker.R;
+import ezet.bartracker.activities.view_set.ViewSetActivity;
 import ezet.bartracker.activities.adapters.AccelerometerListener;
-import ezet.bartracker.models.BarStats;
-import ezet.bartracker.models.Exercise;
+import ezet.bartracker.activities.fragments.dummy.ExerciseSetProvider;
 import ezet.bartracker.models.ExerciseSet;
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +36,8 @@ public class TrackExerciseFragment extends Fragment {
 
     private NumberPicker numberPicker;
     private ToggleButton toggleButton;
+
+    private Date date;
 
     private AccelerometerListener accelerometerListener;
 
@@ -77,22 +83,31 @@ public class TrackExerciseFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if (((ToggleButton)v).isChecked()) {
+                date = Calendar.getInstance().getTime();
                 accelerometerListener.register();
             } else {
+                accelerometerListener.unregister();
                 trackStop();
             }
         }
     };
 
     private void trackStop() {
-        accelerometerListener.unregister();
-        BarStats stats = new BarStats();
-        stats.analyze(accelerometerListener.sensorData);
-
-
         ExerciseSet set = new ExerciseSet(accelerometerListener.sensorData);
-
-        // TODO: Save to database, open set analyzer
+        set.id = 1;
+        set.name = "Test Set";
+        set.date = date;
+        set.duration = 0;
+        set.weight = numberPicker.getValue();
+//        ExerciseSetProvider.ITEMS.remove(set.id);
+        ExerciseSetProvider.ITEMS.set(set.id, set);
+        ExerciseSetProvider.ITEM_MAP.put(set.id, set);
+        Intent intent = new Intent(getActivity(), ViewSetActivity.class);
+//        Bundle bundle = new Bundle();
+//        bundle.putInt(ViewSetActivity.ARG_SET_ID, set.id);
+//        intent.putExtras(bundle);
+        EventBus.getDefault().postSticky(set);
+        startActivity(intent);
     }
 
     public void onButtonPressed(Uri uri) {
@@ -108,7 +123,7 @@ public class TrackExerciseFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement BarStatsHost");
         }
     }
 

@@ -80,5 +80,15 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="button_start">Start</string>
     <string name="button_stop">Stop</string>
+    <string name="field_weight">Weight: %1$f.2 kg</string>
+    <string name="field_duration">Duration: %1$d s</string>
+    <string name="field_repetitions">Repetitions: %1$d</string>
+    <string name="field_date">Date: %1$s</string>
+    <string name="field_max_power">Max Power: %1$.2f W</string>
+    <string name="field_avg_power">Average Power: %1$.2f W</string>
+    <string name="field_max_velocity">Max Velocity: %1$.2f m/s</string>
+    <string name="field_avg_velocity">Average Velocity: %1$.2f m/s</string>
+    <string name="field_max_force">Max Force: %1$.2f N</string>
+    <string name="field_avg_force">Average Force: %1$.2f N</string>
 
 </resources>

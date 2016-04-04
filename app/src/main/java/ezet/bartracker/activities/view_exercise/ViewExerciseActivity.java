@@ -1,28 +1,37 @@
-package ezet.bartracker.activities;
+package ezet.bartracker.activities.view_exercise;
 
-import android.support.design.widget.TabLayout;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import ezet.bartracker.activities.fragments.AnalyzerFragment;
 import ezet.bartracker.R;
-import ezet.bartracker.models.SensorFragment;
+import ezet.bartracker.activities.DebugActivity;
+import ezet.bartracker.activities.SettingsActivity;
+import ezet.bartracker.activities.view_set.ViewSetActivity;
+import ezet.bartracker.activities.fragments.dummy.ExerciseProvider;
+import ezet.bartracker.models.Exercise;
+import ezet.bartracker.models.ExerciseSet;
+import org.greenrobot.eventbus.EventBus;
 
 @SuppressWarnings("Duplicates")
-public class ViewRepActivity extends AppCompatActivity {
+public class ViewExerciseActivity extends AppCompatActivity implements ExerciseHistoryFragment.OnListFragmentInteractionListener, TrackExerciseFragment.OnFragmentInteractionListener, ExerciseStatsFragment.OnFragmentInteractionListener {
 
 
+    public static final String ARG_EXERCISE_ID = "exercise_id";
+    private int exerciseId;
+    private Exercise exercise;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -41,10 +50,18 @@ public class ViewRepActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_debug);
+        if (savedInstanceState == null)
+            savedInstanceState = getIntent().getExtras();
+        exerciseId = savedInstanceState.getInt(ARG_EXERCISE_ID);
+
+        exercise = ExerciseProvider.ITEM_MAP.get(exerciseId);
+        setContentView(R.layout.activity_view_exercise);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(exercise.name);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -64,7 +81,6 @@ public class ViewRepActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-
     }
 
     @Override
@@ -81,12 +97,33 @@ public class ViewRepActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        // noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                this.startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_debug:
+                this.startActivity(new Intent(this, DebugActivity.class));
+                return true;
+            case R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onListFragmentInteraction(ExerciseSet item) {
+        Intent intent = new Intent(this, ViewSetActivity.class);
+//        Bundle bundle = new Bundle();
+//        bundle.putInt(ViewSetActivity.ARG_SET_ID, item.id);
+//        intent.putExtras(bundle);
+        EventBus.getDefault().postSticky(item);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 
     /**
@@ -101,18 +138,20 @@ public class ViewRepActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            switch (position){
-//                case 0: return SensorFragment.newInstance();
-//                case 1: return AnalyzerFragment.newInstance();
-                default: return null;
+            switch (position) {
+                case 0:
+                    return TrackExerciseFragment.newInstance();
+                case 1:
+                    return ExerciseHistoryFragment.newInstance(1);
+                case 2:
+                    return ExerciseStatsFragment.newInstance();
+                default:
+                    return null;
             }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 3;
         }
 
@@ -120,11 +159,11 @@ public class ViewRepActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Power";
+                    return getString(R.string.title_fragment_track);
                 case 1:
-                    return "Velocity";
+                    return getString(R.string.title_fragment_history);
                 case 2:
-                    return "Force";
+                    return getString(R.string.title_fragment_stats);
             }
             return null;
         }

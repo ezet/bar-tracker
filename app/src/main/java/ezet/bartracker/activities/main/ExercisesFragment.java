@@ -1,4 +1,4 @@
-package ezet.bartracker.activities.fragments;
+package ezet.bartracker.activities.main;
 
 import android.content.Context;
 import android.os.Bundle;

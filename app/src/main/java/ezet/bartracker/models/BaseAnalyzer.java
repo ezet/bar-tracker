@@ -6,22 +6,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by larsk on 26-Mar-16.
+ * Created by larsk on 02-Apr-16.
  */
-public class BarStats {
-
+public abstract class BaseAnalyzer {
     static final double lowPassFilterAlpha = 0.6;
     static final double exponentialSmoothingAlpha = 0.99;
     static final double acceleration_threshold = 0.05d;
     static final int calibrationEventThreshold = 100;
     static double mass = 100;
-    public final List<BarEvent> rawAcceleration = new LinkedList<>();
-    public final List<BarEvent> adjustedAcceleration = new LinkedList<>();
-    public final List<BarEvent> rawVelocity = new LinkedList<>();
-    public final List<BarEvent> adjustedVelocity = new LinkedList<>();
-    public final List<BarEvent> force = new LinkedList<>();
-    public final List<BarEvent> power = new LinkedList<>();
-    public List<SensorData> data = new LinkedList<>();
+    protected double[] gravity = new double[3];
+    protected long previousEventTimestamp = 0;
+    protected long firstEventTimestamp;
     public double maxRawAcceleration;
     public double minRawAcceleration;
     public double maxVelocity;
@@ -36,11 +31,16 @@ public class BarStats {
     public double distance;
     public double minPower;
     public double maxPower;
-    private double[] gravity = new double[3];
-    private long previousEventTimestamp = 0;
-    private long firstEventTimestamp;
+    public final List<BarEvent> rawAcceleration = new LinkedList<>();
+    public final List<BarEvent> adjustedAcceleration = new LinkedList<>();
+    public final List<BarEvent> rawVelocity = new LinkedList<>();
+    public final List<BarEvent> adjustedVelocity = new LinkedList<>();
+    public final List<BarEvent> force = new LinkedList<>();
+    public final List<BarEvent> power = new LinkedList<>();
+    public List<SensorData> data = new LinkedList<>();
 
-    public BarStats() {
+    protected BaseAnalyzer(List<SensorData> data) {
+        this.data = data;
     }
 
     public void reset() {
@@ -50,7 +50,7 @@ public class BarStats {
         adjustedVelocity.clear();
         force.clear();
         power.clear();
-        data.clear();
+//        data.clear();
         maxRawAcceleration = Double.MIN_VALUE;
         minRawAcceleration = Double.MAX_VALUE;
         maxVelocity = Double.MIN_VALUE;
@@ -67,11 +67,12 @@ public class BarStats {
         distance = 0;
     }
 
-    public void analyze(List<SensorData> data) {
+    public void analyze() {
         reset();
+        if (data == null) return;
+//        this.data = data;
         int length = data.size();
         firstEventTimestamp = data.get(0).timestamp;
-        Log.v("BarStats.analyze", "" + length);
         for (SensorData event : data) {
             calculate(event);
         }
@@ -81,14 +82,7 @@ public class BarStats {
         this.avgPower /= length;
     }
 
-    public void analyze(SensorData event) {
-        if (firstEventTimestamp == 0) firstEventTimestamp = event.timestamp;
-        data.add(event);
-        calculate(event);
-    }
-
-
-    private void calculate(SensorData event) {
+    protected void calculate(SensorData event) {
         double[] currentRawVelocityVector = new double[3];
         double[] currentVelocityVector = new double[3];
         double[] smoothedVelocity = new double[3];
@@ -169,10 +163,8 @@ public class BarStats {
 
     }
 
-    private BarEvent newEvent(double value, long timestamp) {
+    protected BarEvent newEvent(double value, long timestamp) {
         return new BarEvent(value, timestamp - firstEventTimestamp);
 
     }
-
-
 }

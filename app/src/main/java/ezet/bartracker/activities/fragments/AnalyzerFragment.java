@@ -19,7 +19,7 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import ezet.bartracker.models.BarEvent;
-import ezet.bartracker.models.BarStats;
+import ezet.bartracker.models.SetAnalyzer;
 import ezet.bartracker.R;
 import ezet.bartracker.models.SensorData;
 
@@ -168,8 +168,8 @@ public class AnalyzerFragment extends Fragment implements SensorEventListener {
 
     private void analyzeData(List<SensorData> data) {
 
-        BarStats stats = new BarStats();
-        stats.analyze(data);
+        SetAnalyzer stats = new SetAnalyzer(data);
+        stats.analyze();
 
         List<Entry> rawAccelerationValues = new ArrayList<>();
         List<Entry> velocityValues = new ArrayList<>();

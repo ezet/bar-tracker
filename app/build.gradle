@@ -25,6 +25,10 @@ android {
 
 repositories {
     maven { url "https://jitpack.io" }
+    mavenCentral()
+    maven {
+        url "https://dl.bintray.com/sporklibrary/spork"
+    }
 }
 
 dependencies {
@@ -37,4 +41,6 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'io.github.sporklibrary:spork-android:2.4.3'
+    compile 'org.greenrobot:eventbus:3.0.0'
 }

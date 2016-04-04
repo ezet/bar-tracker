@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import ezet.bartracker.R;
-import ezet.bartracker.activities.fragments.ExercisesFragment.OnListFragmentInteractionListener;
+import ezet.bartracker.activities.main.ExercisesFragment.OnListFragmentInteractionListener;
 import ezet.bartracker.models.Exercise;
 
 import java.util.List;

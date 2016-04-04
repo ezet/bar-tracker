@@ -1,5 +1,6 @@
-package ezet.bartracker.activities;
+package ezet.bartracker.activities.view_set;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -7,6 +8,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,16 +16,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import ezet.bartracker.R;
-import ezet.bartracker.activities.fragments.AnalyzerFragment;
-import ezet.bartracker.activities.fragments.dummy.ExerciseSetProvider;
+import ezet.bartracker.activities.SetAnalyzerHost;
+import ezet.bartracker.activities.view_rep.ViewRepActivity;
+import ezet.bartracker.models.RepAnalyzer;
+import ezet.bartracker.models.SetAnalyzer;
 import ezet.bartracker.models.ExerciseSet;
-import ezet.bartracker.models.SensorFragment;
+import io.github.sporklibrary.Spork;
+import io.github.sporklibrary.annotations.BindLayout;
+import org.greenrobot.eventbus.EventBus;
 
-@SuppressWarnings("Duplicates")
-public class ViewSetActivity extends AppCompatActivity {
+@BindLayout(R.layout.activity_view_set)
+public class ViewSetActivity extends AppCompatActivity implements SetAnalyzerHost, RepListFragment.OnListFragmentInteractionListener {
 
-
-    public static final String ARG_SET_ID = "exercise_id";
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -33,24 +37,18 @@ public class ViewSetActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private int setId;
     private ExerciseSet set;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
+    private SetAnalyzer stats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState == null)
-            savedInstanceState = getIntent().getExtras();
-        setId = savedInstanceState.getInt(ARG_SET_ID);
+        Spork.bind(this);
 
-        set = ExerciseSetProvider.ITEM_MAP.get(setId);
-
-        setContentView(R.layout.activity_debug);
+        set = EventBus.getDefault().getStickyEvent(ExerciseSet.class);
+        EventBus.getDefault().removeStickyEvent(set);
+        stats = new SetAnalyzer(set);
+        stats.analyze();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(set.name);
@@ -62,20 +60,27 @@ public class ViewSetActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        /*
+      The {@link ViewPager} that will host the section contents.
+     */
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+
+//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//        ft.replace(R.id.fragment_set_summary, SetSummaryFragment.newInstance());
+//        ft.commit();
 
     }
 
@@ -101,30 +106,40 @@ public class ViewSetActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public SetAnalyzer getSetAnalyzer() {
+        return stats;
+    }
+
+    @Override
+    public void onListFragmentInteraction(RepAnalyzer item) {
+        Intent intent = new Intent(this, ViewRepActivity.class);
+        EventBus.getDefault().postSticky(item);
+        startActivity(intent);
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position){
-                case 0: return SensorFragment.newInstance();
-                case 1: return AnalyzerFragment.newInstance();
+                case 0: return SetSummaryFragment.newInstance();
+                case 1: return SetAnalysisFragment.newInstance();
+                case 2: return RepListFragment.newInstance(1);
                 default: return null;
             }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 3;
         }
 
@@ -132,11 +147,11 @@ public class ViewSetActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Power";
+                    return "Summary";
                 case 1:
-                    return "Velocity";
+                    return "Analysis";
                 case 2:
-                    return "Force";
+                    return "Reps";
             }
             return null;
         }

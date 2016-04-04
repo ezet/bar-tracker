@@ -1,8 +1,11 @@
 package ezet.bartracker.models;
 
-import android.hardware.*;
-import android.support.v4.app.Fragment;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,24 +14,23 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import ezet.bartracker.R;
 
+import java.util.LinkedList;
+
 import static android.content.Context.SENSOR_SERVICE;
 
-@SuppressWarnings("Duplicates")
 public class SensorFragment extends Fragment implements SensorEventListener {
-
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    private static final String ARG_SECTION_NUMBER = "section_number";
 
     static final double mass = 1;
     static final double lowPassFilterAlpha = 0.8;
     static final double exponentialSmoothingAlpha = 0.99;
     static final double acceleration_threshold = 0.05d;
     static final int calibrationEventThreshold = 100;
-
-    BarStats stats = new BarStats();
+    /**
+     * The fragment argument representing the section number for this
+     * fragment.
+     */
+    private static final String ARG_SECTION_NUMBER = "section_number";
+    SetAnalyzer stats = new SetAnalyzer(new LinkedList<SensorData>());
     SensorManager sensorManager;
     Sensor accelerometer;
     Sensor linearAccelerometer;
@@ -37,14 +39,14 @@ public class SensorFragment extends Fragment implements SensorEventListener {
     TextView[] accelerationView = new TextView[3];
     TextView[] maxAccelerationView = new TextView[3];
     TextView[] minAccelerationView = new TextView[3];
-//    TextView[] velocityVectorView = new TextView[3];
+    //    TextView[] velocityVectorView = new TextView[3];
 //    TextView[] smoothedVelocityView = new TextView[3];
     TextView avgSmoothedTotalVelocityView;
     TextView avgTotalVelocityView;
     TextView totalAccelerationView;
     TextView velocityView;
     TextView rawVelocityView;
-//    TextView minTotalAccelerationView;
+    //    TextView minTotalAccelerationView;
     TextView maxTotalAccelerationView;
     TextView distanceView;
     TextView forceView;
@@ -65,6 +67,17 @@ public class SensorFragment extends Fragment implements SensorEventListener {
     double[] minAcceleration = new double[3];
     double[] maxAcceleration = new double[3];
     double[] smoothedVelocity = new double[3];
+    View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!(v instanceof ToggleButton)) return;
+            ToggleButton button = (ToggleButton) v;
+            if (button.isChecked()) {
+                resetData();
+                registerListener();
+            } else unregisterListener();
+        }
+    };
     private double liftStartThreshold = 1;
 
     /**
@@ -85,17 +98,17 @@ public class SensorFragment extends Fragment implements SensorEventListener {
         View view = inflater.inflate(R.layout.fragment_sensor, container, false);
 
         // get views
-        accelerationView[0] = (TextView)view.findViewById(R.id.accel_x);
-        accelerationView[1] = (TextView)view.findViewById(R.id.accel_y);
-        accelerationView[2] = (TextView)view.findViewById(R.id.accel_z);
+        accelerationView[0] = (TextView) view.findViewById(R.id.accel_x);
+        accelerationView[1] = (TextView) view.findViewById(R.id.accel_y);
+        accelerationView[2] = (TextView) view.findViewById(R.id.accel_z);
 
-        maxAccelerationView[0] = (TextView)view.findViewById(R.id.accel_x_max);
-        maxAccelerationView[1] = (TextView)view.findViewById(R.id.accel_y_max);
-        maxAccelerationView[2] = (TextView)view.findViewById(R.id.accel_z_max);
+        maxAccelerationView[0] = (TextView) view.findViewById(R.id.accel_x_max);
+        maxAccelerationView[1] = (TextView) view.findViewById(R.id.accel_y_max);
+        maxAccelerationView[2] = (TextView) view.findViewById(R.id.accel_z_max);
 
-        minAccelerationView[0] = (TextView)view.findViewById(R.id.accel_x_min);
-        minAccelerationView[1] = (TextView)view.findViewById(R.id.accel_y_min);
-        minAccelerationView[2] = (TextView)view.findViewById(R.id.accel_z_min);
+        minAccelerationView[0] = (TextView) view.findViewById(R.id.accel_x_min);
+        minAccelerationView[1] = (TextView) view.findViewById(R.id.accel_y_min);
+        minAccelerationView[2] = (TextView) view.findViewById(R.id.accel_z_min);
 
 //        velocityVectorView[0] = (TextView)rootView.findViewById(R.id.velocity_x);
 //        velocityVectorView[1] = (TextView)rootView.findViewById(R.id.velocity_y);
@@ -106,14 +119,14 @@ public class SensorFragment extends Fragment implements SensorEventListener {
 //        smoothedVelocityView[2] = (TextView)rootView.findViewById(R.id.velocity_z_avg);
 
 //        minTotalAccelerationView = (TextView)rootView.findViewById(R.id.acceleration_min);
-        maxTotalAccelerationView = (TextView)view.findViewById(R.id.acceleration_max);
-        totalAccelerationView = (TextView)view.findViewById(R.id.acceleration_total);
-        avgSmoothedTotalVelocityView = (TextView)view.findViewById(R.id.total_velocity_smoothed_avg);
-        avgTotalVelocityView = (TextView)view.findViewById(R.id.total_velocity_avg);
-        distanceView = (TextView)view.findViewById(R.id.distance);
-        velocityView = (TextView)view.findViewById(R.id.velocity);
-        rawVelocityView = (TextView)view.findViewById(R.id.raw_velocity);
-        forceView = (TextView)view.findViewById(R.id.force);
+        maxTotalAccelerationView = (TextView) view.findViewById(R.id.acceleration_max);
+        totalAccelerationView = (TextView) view.findViewById(R.id.acceleration_total);
+        avgSmoothedTotalVelocityView = (TextView) view.findViewById(R.id.total_velocity_smoothed_avg);
+        avgTotalVelocityView = (TextView) view.findViewById(R.id.total_velocity_avg);
+        distanceView = (TextView) view.findViewById(R.id.distance);
+        velocityView = (TextView) view.findViewById(R.id.velocity);
+        rawVelocityView = (TextView) view.findViewById(R.id.raw_velocity);
+        forceView = (TextView) view.findViewById(R.id.force);
 
 
         button = (ToggleButton) view.findViewById(R.id.button_toggle);
@@ -155,20 +168,6 @@ public class SensorFragment extends Fragment implements SensorEventListener {
         resetData();
     }
 
-    View.OnClickListener clickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (!(v instanceof ToggleButton)) return;
-            ToggleButton button = (ToggleButton) v;
-            if (button.isChecked()) {
-                resetData();
-                registerListener();
-            }
-            else unregisterListener();
-        }
-    };
-
-
     private void resetData() {
         stats.reset();
         maxTotalAcceleration = Double.MIN_VALUE;
@@ -206,9 +205,12 @@ public class SensorFragment extends Fragment implements SensorEventListener {
 
     private String map(int i) {
         switch (i) {
-            case 0: return "X: ";
-            case 1: return "Y: ";
-            case 2: return "Z: ";
+            case 0:
+                return "X: ";
+            case 1:
+                return "Y: ";
+            case 2:
+                return "Z: ";
         }
         return null;
     }
@@ -221,7 +223,7 @@ public class SensorFragment extends Fragment implements SensorEventListener {
         ++sensorEvents;
 
         stats.analyze(new SensorData(event.values, event.timestamp));
-        int index = stats.data.size()-1;
+        int index = stats.data.size() - 1;
 
         accelerationView[0].setText("X: " + event.values[0]);
         accelerationView[1].setText("Y: " + event.values[1]);

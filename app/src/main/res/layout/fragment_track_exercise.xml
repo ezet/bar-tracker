@@ -1,28 +1,23 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ezet.bartracker.activities.fragments.TrackExerciseFragment">
+    android:orientation="vertical"
+    tools:context=".activities.view_exercise.TrackExerciseFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
     <NumberPicker
         android:id="@+id/weight_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        >
-        <ToggleButton
-            android:id="@+id/track_toggle_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textOff="@string/button_start"
-            android:textOn="@string/button_stop"
-            />
+       />
+    <ToggleButton
+        android:id="@+id/track_toggle_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOff="@string/button_start"
+        android:textOn="@string/button_stop"
+        />
 
-    </NumberPicker>
 
-</FrameLayout>
+</LinearLayout>
