@@ -23,7 +23,7 @@ public class ExerciseSetProvider {
     /**
      * A map of sample (dummy) items, by ID.
      */
-    public static final Map<Integer, ExerciseSet> ITEM_MAP = new HashMap<>();
+    public static final Map<Long, ExerciseSet> ITEM_MAP = new HashMap<>();
 
     private static final int COUNT = 25;
 
@@ -40,16 +40,8 @@ public class ExerciseSetProvider {
     }
 
     private static ExerciseSet createDummyItem(int position) {
-        return new ExerciseSet(position, "Set " + position, makeDetails(position));
+        return new ExerciseSet(position);
     }
 
-    private static String makeDetails(int position) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Details about Item: ").append(position);
-        for (int i = 0; i < position; i++) {
-            builder.append("\nMore details information here.");
-        }
-        return builder.toString();
-    }
 
 }

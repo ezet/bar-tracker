@@ -1,21 +1,25 @@
 package ezet.bartracker.models;
 
+import android.database.Cursor;
+
 /**
  * A dummy item representing a piece of name.
  */
 public class Exercise {
-    public final int id;
-    public final String name;
-    public final String details;
+    public long id;
+    public String name;
 
-    public Exercise(int id, String name, String details) {
+    public Exercise(int id, String name) {
         this.id = id;
         this.name = name;
-        this.details = details;
     }
 
     @Override
     public String toString() {
         return name;
+    }
+
+    public static Exercise fromCursor(Cursor cursor) {
+        return new Exercise(cursor.getInt(0), cursor.getString(1));
     }
 }

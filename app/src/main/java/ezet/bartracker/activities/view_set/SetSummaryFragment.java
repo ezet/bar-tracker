@@ -3,8 +3,10 @@ package ezet.bartracker.activities.view_set;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +31,8 @@ public class SetSummaryFragment extends Fragment {
     @BindView(R.id.date)
     private TextView date;
 
-    @BindView(R.id.duration)
-    private TextView duration;
+//    @BindView(R.id.duration)
+//    private TextView duration;
 
     @BindView(R.id.repetitions)
     private TextView repetitions;
@@ -41,8 +43,6 @@ public class SetSummaryFragment extends Fragment {
     private SetAnalyzer stats;
 
     private ExerciseSet set;
-
-    private SetAnalyzerHost mListener;
 
     public SetSummaryFragment() {
         // Required empty public constructor
@@ -97,21 +97,20 @@ public class SetSummaryFragment extends Fragment {
             set = stats.set;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement BarStatsHost");
+                    + " must implement SetAnalyzerHost");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     private void setContent() {
         weight.setText(getString(R.string.field_weight, set.weight));
-        duration.setText(getString(R.string.field_duration, set.duration));
+//        duration.setText(getString(R.string.field_duration, set.duration));
         repetitions.setText(getString(R.string.field_repetitions, stats.reps.size()));
-        date.setText(getString(R.string.field_date, set.date.toString()));
+        date.setText(getString(R.string.listfield_date_time, DateFormat.getLongDateFormat(getContext()).format(set.date), DateFormat.getTimeFormat(getContext()).format(set.date)));
     }
 
 }

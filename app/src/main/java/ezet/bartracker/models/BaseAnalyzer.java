@@ -1,7 +1,5 @@
 package ezet.bartracker.models;
 
-import android.util.Log;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +16,7 @@ public abstract class BaseAnalyzer {
     protected long previousEventTimestamp = 0;
     protected long firstEventTimestamp;
     public double maxRawAcceleration;
+    public double avgRawAcceleration;
     public double minRawAcceleration;
     public double maxVelocity;
     public double minVelocity;
@@ -38,6 +37,7 @@ public abstract class BaseAnalyzer {
     public final List<BarEvent> force = new LinkedList<>();
     public final List<BarEvent> power = new LinkedList<>();
     public List<SensorData> data = new LinkedList<>();
+    private double avgAdjustedAcceleration;
 
     protected BaseAnalyzer(List<SensorData> data) {
         this.data = data;
@@ -50,7 +50,6 @@ public abstract class BaseAnalyzer {
         adjustedVelocity.clear();
         force.clear();
         power.clear();
-//        data.clear();
         maxRawAcceleration = Double.MIN_VALUE;
         minRawAcceleration = Double.MAX_VALUE;
         maxVelocity = Double.MIN_VALUE;
@@ -68,8 +67,8 @@ public abstract class BaseAnalyzer {
     }
 
     public void analyze() {
+        if (data == null || data.size() == 0) return;
         reset();
-        if (data == null) return;
 //        this.data = data;
         int length = data.size();
         firstEventTimestamp = data.get(0).timestamp;
@@ -80,6 +79,8 @@ public abstract class BaseAnalyzer {
         this.avgAdjustedVelocity /= length;
         this.avgForce /= length;
         this.avgPower /= length;
+        this.avgRawAcceleration /= length;
+        this.avgAdjustedAcceleration /= length;
     }
 
     protected void calculate(SensorData event) {
@@ -107,9 +108,11 @@ public abstract class BaseAnalyzer {
 
         double currentAdjustedAcceleration = MathHelper.getAcceleration(adjustedAcceleration);
         this.adjustedAcceleration.add(newEvent(currentAdjustedAcceleration, event.timestamp));
+        this.avgAdjustedAcceleration += currentAdjustedAcceleration;
 
         double currentRawAcceleration = MathHelper.getAcceleration(rawAcceleration);
         this.rawAcceleration.add(newEvent(currentRawAcceleration, event.timestamp));
+        this.avgRawAcceleration += currentRawAcceleration;
 
         if (currentRawAcceleration < minRawAcceleration) minRawAcceleration = currentRawAcceleration;
         if (currentRawAcceleration > maxRawAcceleration) maxRawAcceleration = currentRawAcceleration;
@@ -153,10 +156,11 @@ public abstract class BaseAnalyzer {
 
 
         // Power
-        double currentPower = currentForce * currentAdjustedAcceleration;
+        double currentPower = currentForce * currentAdjustedVelocity;
         this.power.add(newEvent(currentPower, event.timestamp));
         this.avgPower += currentPower;
-        if (currentPower > maxPower) maxPower = currentPower;
+        if (currentPower > maxPower)
+            maxPower = currentPower;
         if (currentPower < minPower) minPower = currentPower;
 
         previousEventTimestamp = event.timestamp;

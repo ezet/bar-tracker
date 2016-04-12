@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import ezet.bartracker.R;
 import ezet.bartracker.activities.SetAnalyzerHost;
 import ezet.bartracker.activities.view_rep.ViewRepActivity;
-import ezet.bartracker.activities.view_set.dummy.RepProvider;
+import ezet.bartracker.events.ViewRepEvent;
 import ezet.bartracker.models.RepAnalyzer;
 import ezet.bartracker.models.SetAnalyzer;
 import org.greenrobot.eventbus.EventBus;
@@ -34,9 +34,9 @@ public class RepListFragment extends Fragment {
     private OnListFragmentInteractionListener mListener = new OnListFragmentInteractionListener() {
         @Override
         public void onListFragmentInteraction(RepAnalyzer item) {
-            Intent intent = new Intent(getActivity(), ViewRepActivity.class);
-            EventBus.getDefault().postSticky(item);
-            getActivity().startActivity(intent);
+            Intent intent = new Intent(getContext(), ViewRepActivity.class);
+            EventBus.getDefault().postSticky(new ViewRepEvent(item));
+            startActivity(intent);
         }
     };
 

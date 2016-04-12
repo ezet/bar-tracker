@@ -1,18 +1,25 @@
 package ezet.bartracker.activities.view_exercise;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import ezet.bartracker.R;
-import ezet.bartracker.activities.adapters.SetViewAdapter;
-import ezet.bartracker.activities.fragments.dummy.ExerciseSetProvider;
+import ezet.bartracker.activities.adapters.SetCursorAdapter;
+import ezet.bartracker.activities.view_set.ViewSetActivity;
+import ezet.bartracker.contracts.BarTrackerDb;
+import ezet.bartracker.events.NewSetEvent;
+import ezet.bartracker.events.ViewExerciseEvent;
+import ezet.bartracker.events.ViewSetEvent;
+import ezet.bartracker.models.Exercise;
 import ezet.bartracker.models.ExerciseSet;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * A fragment representing a list of Items.
@@ -24,7 +31,18 @@ public class ExerciseHistoryFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private BarTrackerDb db;
+    private Exercise exercise;
+    private RecyclerView recyclerView;
+    private SetCursorAdapter adapter;
+    private OnListFragmentInteractionListener mListener = new OnListFragmentInteractionListener() {
+        @Override
+        public void onListFragmentInteraction(ExerciseSet item) {
+            Intent intent = new Intent(getActivity(), ViewSetActivity.class);
+            startActivity(intent);
+            EventBus.getDefault().postSticky(new ViewSetEvent(item));
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -47,6 +65,13 @@ public class ExerciseHistoryFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+        EventBus.getDefault().register(this);
+        this.exercise = EventBus.getDefault().getStickyEvent(ViewExerciseEvent.class).exercise;
+    }
+
+    @Subscribe
+    public void newSetEventHandler(NewSetEvent event) {
+        adapter.changeCursor(db.getSetsByExerciseId(exercise.id));
     }
 
     @Override
@@ -57,33 +82,46 @@ public class ExerciseHistoryFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new SetViewAdapter(ExerciseSetProvider.ITEMS, mListener));
+            adapter = new SetCursorAdapter(getContext(), db.getSetsByExerciseId(exercise.id), mListener);
+            adapter.setContextMenuListener(this);
+            recyclerView.setAdapter(adapter);
         }
         return view;
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getActivity().getMenuInflater().inflate(R.menu.context_menu, menu);
+    }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+    public boolean onContextItemSelected(MenuItem item) {
+        ExerciseSet set = adapter.contextItem;
+        switch (item.getItemId()) {
+            case R.id.action_delete: onDelete(set); break;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void onDelete(ExerciseSet set) {
+        if (db.deleteSet(set)) {
+            adapter.changeCursor(db.getSetsByExerciseId(exercise.id));
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
+            Snackbar.make(getView(), "There was an error deleting the set.", Snackbar.LENGTH_LONG);
         }
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        db = new BarTrackerDb(context);
     }
 
     /**

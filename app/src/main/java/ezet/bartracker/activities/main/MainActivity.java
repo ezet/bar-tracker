@@ -1,28 +1,28 @@
 package ezet.bartracker.activities.main;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.*;
+import android.widget.EditText;
 import android.widget.TextView;
 import ezet.bartracker.R;
 import ezet.bartracker.activities.DebugActivity;
 import ezet.bartracker.activities.SettingsActivity;
 import ezet.bartracker.activities.view_exercise.ViewExerciseActivity;
+import ezet.bartracker.contracts.BarTrackerDb;
+import ezet.bartracker.events.ViewExerciseEvent;
 import ezet.bartracker.models.Exercise;
+import org.greenrobot.eventbus.EventBus;
 
 public class MainActivity extends AppCompatActivity implements ExercisesFragment.OnListFragmentInteractionListener {
 
@@ -54,20 +54,12 @@ public class MainActivity extends AppCompatActivity implements ExercisesFragment
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -83,8 +75,10 @@ public class MainActivity extends AppCompatActivity implements ExercisesFragment
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_settings: return settingsAction();
-            case R.id.action_debug: return debugAction();
+            case R.id.action_settings:
+                return settingsAction();
+            case R.id.action_debug:
+                return debugAction();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -104,9 +98,10 @@ public class MainActivity extends AppCompatActivity implements ExercisesFragment
     @Override
     public void onListFragmentInteraction(Exercise item) {
         Intent intent = new Intent(this, ViewExerciseActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putInt(ViewExerciseActivity.ARG_EXERCISE_ID, item.id);
-        intent.putExtras(bundle);
+//        Bundle bundle = new Bundle();
+//        bundle.putInt(ViewExerciseActivity.ARG_EXERCISE_ID, item.id);
+//        intent.putExtras(bundle);
+        EventBus.getDefault().postSticky(new ViewExerciseEvent(item));
         startActivity(intent);
     }
 
@@ -160,7 +155,8 @@ public class MainActivity extends AppCompatActivity implements ExercisesFragment
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
-                case 0: return ExercisesFragment.newInstance(1);
+                case 0:
+                    return ExercisesFragment.newInstance(1);
             }
             return PlaceholderFragment.newInstance(position + 1);
         }

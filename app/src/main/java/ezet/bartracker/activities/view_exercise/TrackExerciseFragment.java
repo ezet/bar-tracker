@@ -5,17 +5,23 @@ import android.content.Intent;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.view.WindowManager;
 import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 import ezet.bartracker.R;
-import ezet.bartracker.activities.view_set.ViewSetActivity;
 import ezet.bartracker.activities.adapters.AccelerometerListener;
 import ezet.bartracker.activities.fragments.dummy.ExerciseSetProvider;
+import ezet.bartracker.activities.view_set.ViewSetActivity;
+import ezet.bartracker.contracts.BarTrackerDb;
+import ezet.bartracker.events.NewSetEvent;
+import ezet.bartracker.events.ViewExerciseEvent;
+import ezet.bartracker.events.ViewSetEvent;
+import ezet.bartracker.models.Exercise;
 import ezet.bartracker.models.ExerciseSet;
 import org.greenrobot.eventbus.EventBus;
 
@@ -32,14 +38,26 @@ import java.util.Date;
  */
 public class TrackExerciseFragment extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
-
     private NumberPicker numberPicker;
     private ToggleButton toggleButton;
 
     private Date date;
+    private BarTrackerDb db;
+    private Exercise exercise;
 
     private AccelerometerListener accelerometerListener;
+    private View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (((ToggleButton) v).isChecked()) {
+                date = Calendar.getInstance().getTime();
+                accelerometerListener.register();
+            } else {
+                accelerometerListener.unregister();
+                trackStop();
+            }
+        }
+    };
 
     public TrackExerciseFragment() {
         // Required empty public constructor
@@ -60,6 +78,7 @@ public class TrackExerciseFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         accelerometerListener = new AccelerometerListener((SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE));
+        exercise = EventBus.getDefault().getStickyEvent(ViewExerciseEvent.class).exercise;
     }
 
     @Override
@@ -74,63 +93,50 @@ public class TrackExerciseFragment extends Fragment {
         toggleButton = (ToggleButton) view.findViewById(R.id.track_toggle_button);
         toggleButton.setChecked(false);
         toggleButton.setOnClickListener(clickListener);
-
-
         return view;
     }
 
-    private View.OnClickListener clickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (((ToggleButton)v).isChecked()) {
-                date = Calendar.getInstance().getTime();
-                accelerometerListener.register();
-            } else {
-                accelerometerListener.unregister();
-                trackStop();
-            }
-        }
-    };
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+//        getActivity().getWindow().setSoftInputMode(
+//                WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
-    private void trackStop() {
-        ExerciseSet set = new ExerciseSet(accelerometerListener.sensorData);
-        set.id = 1;
-        set.name = "Test Set";
-        set.date = date;
-        set.duration = 0;
-        set.weight = numberPicker.getValue();
-//        ExerciseSetProvider.ITEMS.remove(set.id);
-        ExerciseSetProvider.ITEMS.set(set.id, set);
-        ExerciseSetProvider.ITEM_MAP.put(set.id, set);
-        Intent intent = new Intent(getActivity(), ViewSetActivity.class);
-//        Bundle bundle = new Bundle();
-//        bundle.putInt(ViewSetActivity.ARG_SET_ID, set.id);
-//        intent.putExtras(bundle);
-        EventBus.getDefault().postSticky(set);
-        startActivity(intent);
     }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+     private void trackStop() {
+        ExerciseSet set = new ExerciseSet(accelerometerListener.sensorData);
+        set.id = 1;
+        set.exerciseId = exercise.id;
+        set.date = date;
+        set.repetitions = 5;
+        set.duration = 0;
+        set.weight = numberPicker.getValue();
+        ExerciseSetProvider.ITEMS.set((int) set.id, set);
+        ExerciseSetProvider.ITEM_MAP.put(set.id, set);
+        db.insertSet(set);
+        EventBus.getDefault().post(new NewSetEvent());
+        Intent intent = new Intent(getActivity(), ViewSetActivity.class);
+        EventBus.getDefault().postSticky(new ViewSetEvent(set));
+        startActivity(intent);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement BarStatsHost");
-        }
+        db = new BarTrackerDb(context);
+//        if (context instanceof OnFragmentInteractionListener) {
+//            mListener = (OnFragmentInteractionListener) context;
+//        } else {
+//            throw new RuntimeException(context.toString()
+//                    + " must implement BarStatsHost");
+//        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+//        mListener = null;
     }
 
     /**

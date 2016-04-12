@@ -9,4 +9,5 @@
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="header_text_margin">5dp</dimen>
+    <dimen name="stats_text_margin">5dp</dimen>
 </resources>

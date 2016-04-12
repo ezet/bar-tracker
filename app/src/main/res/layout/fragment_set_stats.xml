@@ -5,8 +5,6 @@
     android:orientation="vertical"
     tools:context=".activities.view_set.SetStatsFragment">
 
-
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:id="@+id/velocity_header"
         android:padding="@dimen/header_text_margin"
@@ -14,19 +12,19 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDark"
         android:textColor="@android:color/primary_text_dark"
-        android:text="Velocity (m/s)" />
+        android:text="@string/velocity" />
     <TextView
         android:id="@+id/max_velocity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="Max Velocity: 3 m/s" />
+        android:layout_margin="@dimen/stats_text_margin"
+        android:text="@string/field_max_velocity" />
     <TextView
         android:id="@+id/avg_velocity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="Average Velocity: 1 m/s" />
+        android:layout_margin="@dimen/stats_text_margin"
+        android:text="@string/field_avg_velocity" />
 
     <TextView
         android:id="@+id/power_header"
@@ -35,19 +33,19 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDark"
         android:textColor="@android:color/primary_text_dark"
-        android:text="Power (Watts)" />
+        android:text="@string/power" />
     <TextView
         android:id="@+id/max_power"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="Max Power: 200 W" />
+        android:layout_margin="@dimen/stats_text_margin"
+        android:text="@string/field_max_power" />
     <TextView
         android:id="@+id/avg_power"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="Average Power: 100 W" />
+        android:layout_margin="@dimen/stats_text_margin"
+        android:text="@string/field_avg_power" />
 
     <TextView
         android:id="@+id/force_header"
@@ -56,17 +54,17 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDark"
         android:textColor="@android:color/primary_text_dark"
-        android:text="Force (N)" />
+        android:text="@string/force" />
     <TextView
         android:id="@+id/max_force"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="Max Force: 1000 N" />
+        android:layout_margin="@dimen/stats_text_margin"
+        android:text="@string/field_max_force" />
     <TextView
         android:id="@+id/avg_force"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="Average Force: 500 N" />
+        android:layout_margin="@dimen/stats_text_margin"
+        android:text="@string/field_avg_force" />
 </LinearLayout>

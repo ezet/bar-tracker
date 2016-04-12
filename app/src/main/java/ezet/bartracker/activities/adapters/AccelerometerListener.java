@@ -36,7 +36,7 @@ public class AccelerometerListener implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
-        sensorData.add(new SensorData(event.values.clone(), event.timestamp));
+        sensorData.add(new SensorData(event.timestamp, event.values.clone()));
     }
 
     @Override

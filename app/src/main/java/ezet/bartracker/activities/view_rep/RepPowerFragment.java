@@ -1,7 +1,6 @@
 package ezet.bartracker.activities.view_rep;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,7 +14,6 @@ import com.github.mikephil.charting.data.LineDataSet;
 import ezet.bartracker.R;
 import ezet.bartracker.models.BarEvent;
 import ezet.bartracker.models.RepAnalyzer;
-import ezet.bartracker.models.SetAnalyzer;
 import io.github.sporklibrary.Spork;
 import io.github.sporklibrary.annotations.BindView;
 
@@ -25,20 +23,16 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link RepPowerFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
  * Use the {@link RepPowerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class RepPowerFragment extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
     private RepAnalyzer repAnalyzer;
 
     @BindView(R.id.power_chart)
     private LineChart powerChart;
-    private int eventRate = 20;
+    private int eventRate = 1;
 
     public RepPowerFragment() {
         // Required empty public constructor
@@ -57,15 +51,6 @@ public class RepPowerFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-//            repMax = getArguments().getString(ARG_REP_MAX);
-//            repNumber = getArguments().getString(ARG_REP_NUMBER);
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_rep_power, container, false);
@@ -78,30 +63,12 @@ public class RepPowerFragment extends Fragment {
         updateChart();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof RepAnalyzerHost) {
             repAnalyzer = ((RepAnalyzerHost) getActivity()).getRepAnalyzer();
         } else throw new RuntimeException(context.toString() + " must implement RepAnalyzerHost");
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-//            throw new RuntimeException(context.toString() + " must implement BarStatsHost");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     private void updateChart() {
@@ -111,7 +78,7 @@ public class RepPowerFragment extends Fragment {
         for (int i = 0; i < lim; i += eventRate) {
             //power
             BarEvent event = repAnalyzer.power.get(i);
-            powerValues.add(new Entry((float) event.value, i/eventRate));
+            powerValues.add(new Entry((float) event.value, i / eventRate));
 
 
             /* x axis */
@@ -123,23 +90,7 @@ public class RepPowerFragment extends Fragment {
         powerChart.invalidate();
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
     public interface RepAnalyzerHost {
-        // TODO: Update argument type and name
         RepAnalyzer getRepAnalyzer();
     }
 }

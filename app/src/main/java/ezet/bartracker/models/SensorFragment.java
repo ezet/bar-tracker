@@ -222,7 +222,7 @@ public class SensorFragment extends Fragment implements SensorEventListener {
 
         ++sensorEvents;
 
-        stats.analyze(new SensorData(event.values, event.timestamp));
+        stats.analyze(new SensorData(event.timestamp, event.values));
         int index = stats.data.size() - 1;
 
         accelerationView[0].setText("X: " + event.values[0]);

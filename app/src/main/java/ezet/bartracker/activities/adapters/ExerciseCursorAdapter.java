@@ -6,11 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.TextView;
-
 import ezet.bartracker.R;
 import ezet.bartracker.activities.main.ExercisesFragment.OnListFragmentInteractionListener;
+import ezet.bartracker.contracts.BarTrackerContract;
 import ezet.bartracker.models.Exercise;
 
 import java.util.List;
@@ -20,14 +19,17 @@ import java.util.List;
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class ExerciseViewAdapter extends RecyclerView.Adapter<ExerciseViewAdapter.ViewHolder> {
+public class ExerciseCursorAdapter extends CursorRecyclerViewAdapter<ExerciseCursorAdapter.ViewHolder> {
 
-    private final List<Exercise> values;
     private final OnListFragmentInteractionListener mListener;
 
-    public ExerciseViewAdapter(List<Exercise> items, OnListFragmentInteractionListener listener) {
-        values = items;
+    public Exercise contextItem;
+    private View.OnCreateContextMenuListener contextMenuListener;
+
+    public ExerciseCursorAdapter(Context context, Cursor cursor, OnListFragmentInteractionListener listener) {
+        super(context, cursor, BarTrackerContract.ExerciseDef.COL_ID);
         mListener = listener;
+        setHasStableIds(true);
     }
 
     @Override
@@ -38,11 +40,9 @@ public class ExerciseViewAdapter extends RecyclerView.Adapter<ExerciseViewAdapte
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.item = values.get(position);
-        holder.idView.setText("" + values.get(position).id);
-        holder.nameView.setText(values.get(position).name);
-
+    public void onBindViewHolder(final ViewHolder holder, Cursor cursor) {
+        holder.item = Exercise.fromCursor(cursor);
+        holder.nameView.setText(holder.item.name);
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,24 +51,31 @@ public class ExerciseViewAdapter extends RecyclerView.Adapter<ExerciseViewAdapte
                 }
             }
         });
+        holder.mView.setOnCreateContextMenuListener(contextMenuListener);
+
+
     }
 
-    @Override
-    public int getItemCount() {
-        return values.size();
+    public void setContextMenuListener(View.OnCreateContextMenuListener contextMenuListener) {
+        this.contextMenuListener = contextMenuListener;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
         public final View mView;
-        public final TextView idView;
         public final TextView nameView;
         public Exercise item;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            idView = (TextView) view.findViewById(R.id.id);
             nameView = (TextView) view.findViewById(R.id.name);
+            view.setOnLongClickListener(this);
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            ExerciseCursorAdapter.this.contextItem = item;
+            return false;
         }
 
         @Override

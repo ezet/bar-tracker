@@ -1,10 +1,7 @@
 package ezet.bartracker.activities.view_exercise;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,22 +12,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import ezet.bartracker.R;
 import ezet.bartracker.activities.DebugActivity;
 import ezet.bartracker.activities.SettingsActivity;
-import ezet.bartracker.activities.view_set.ViewSetActivity;
-import ezet.bartracker.activities.fragments.dummy.ExerciseProvider;
+import ezet.bartracker.events.ViewExerciseEvent;
 import ezet.bartracker.models.Exercise;
-import ezet.bartracker.models.ExerciseSet;
 import org.greenrobot.eventbus.EventBus;
 
-@SuppressWarnings("Duplicates")
-public class ViewExerciseActivity extends AppCompatActivity implements ExerciseHistoryFragment.OnListFragmentInteractionListener, TrackExerciseFragment.OnFragmentInteractionListener, ExerciseStatsFragment.OnFragmentInteractionListener {
+public class ViewExerciseActivity extends AppCompatActivity {
 
-
-    public static final String ARG_EXERCISE_ID = "exercise_id";
-    private int exerciseId;
     private Exercise exercise;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -50,11 +40,9 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState == null)
-            savedInstanceState = getIntent().getExtras();
-        exerciseId = savedInstanceState.getInt(ARG_EXERCISE_ID);
+        if (savedInstanceState == null) { }
 
-        exercise = ExerciseProvider.ITEM_MAP.get(exerciseId);
+        exercise = EventBus.getDefault().getStickyEvent(ViewExerciseEvent.class).exercise;
         setContentView(R.layout.activity_view_exercise);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -67,20 +55,20 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
     }
 
     @Override
@@ -111,20 +99,7 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onListFragmentInteraction(ExerciseSet item) {
-        Intent intent = new Intent(this, ViewSetActivity.class);
-//        Bundle bundle = new Bundle();
-//        bundle.putInt(ViewSetActivity.ARG_SET_ID, item.id);
-//        intent.putExtras(bundle);
-        EventBus.getDefault().postSticky(item);
-        startActivity(intent);
-    }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -168,4 +143,6 @@ public class ViewExerciseActivity extends AppCompatActivity implements ExerciseH
             return null;
         }
     }
+
+
 }
